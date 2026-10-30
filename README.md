@@ -1,45 +1,63 @@
-# Gestion des produits : RPG ILE free-form sur IBM i
+# RPG ILE Free-Form & SOA / MVVM Architecture
 
-Application d'apprentissage réalisée sur le système public [PUB400.COM](https://pub400.com) : une liste
-en sous-fichier et une fiche de détail, qui ne font aucun SQL elles-mêmes et appellent un programme de
-service pour tout accès aux données.
+Full decoupling of user interface and data
 
-Les membres de référence sont sur l'IBM i. Ce dépôt en est la copie, téléchargée avec VS Code et
-l'extension Code for IBM i : un dossier par fichier source, un fichier par membre, l'extension donnant
-le type de source.
+**English** · [Français](README.fr.md)
 
-| Fichier source | Membre | Rôle |
+A learning application built on the public system [PUB400.COM](https://pub400.com), one module at a time. Every
+module follows the same split: a subfile list, a detail screen, and a service program that owns all data access.
+The screens and their programs contain no SQL themselves.
+
+The reference members live on the IBM i. This repository is a copy, downloaded with VS Code and the Code for IBM i
+extension: one folder per source file, one file per member, the extension giving the source type. Source comments
+and screen texts are in French.
+
+## Modules
+
+| Module | Status | Programs | Service program |
+|---|---|---|---|
+| Products | done | `PROD_LIST`, `PROD_DET` | `SRV_PROD` |
+| Orders | planned | — | — |
+
+## Products module
+
+| Source file | Member | Role |
 |---|---|---|
-| `QDDSSRC` | `PROD_LST_F.DSPF` | Écran de la liste (sous-fichier) |
-| `QDDSSRC` | `PROD_DET_F.DSPF` | Écran de la fiche |
-| `QRPGLESRC` | `PROD_LIST.RPGLE` | Programme de la liste |
-| `QRPGLESRC` | `PROD_DET.RPGLE` | Programme de la fiche (création, modification, duplication, suppression, interrogation) |
-| `QRPGLESRC` | `SRV_PROD.SQLRPGLE` | Module du programme de service : les 5 procédures SQL |
-| `QRPGLESRC` | `SRV_PROD_H.RPGLE` | Copybook : structure `t_produit` et prototypes |
-| `QSRVSRC` | `SRV_PROD.BND` | Source de liage : exports et signature `SRV_PROD_V1` |
+| `QDDSSRC` | `PROD_LST_F.DSPF` | List screen (subfile) |
+| `QDDSSRC` | `PROD_DET_F.DSPF` | Detail screen |
+| `QRPGLESRC` | `PROD_LIST.RPGLE` | List program |
+| `QRPGLESRC` | `PROD_DET.RPGLE` | Detail program (create, change, copy, delete, display) |
+| `QRPGLESRC` | `SRV_PROD.SQLRPGLE` | Service program module: the 5 SQL procedures |
+| `QRPGLESRC` | `SRV_PROD_H.RPGLE` | Copybook: `t_produit` structure and prototypes |
+| `QSRVSRC` | `SRV_PROD.BND` | Binder source: exports and signature `SRV_PROD_V1` |
 
-La table `PRODUIT` (`PR_ID`, `PR_CODE` unique, `PR_LIBELLE`) n'est pas dans ce dépôt.
+The `PRODUIT` table (`PR_ID`, unique `PR_CODE`, `PR_LIBELLE`) is not in this repository.
 
-## Compiler, dans cet ordre
+### Build, in this order
 
-`<BIBLIO>` est la bibliothèque qui contient les fichiers source, la table et les objets.
+`<LIB>` is the library that holds the source files, the table and the objects. Long commands are wrapped here for
+reading: type them on a single line, or use the prompt (F4).
 
 ```
-CRTDSPF    FILE(<BIBLIO>/PROD_LST_F) SRCFILE(<BIBLIO>/QDDSSRC) SRCMBR(PROD_LST_F)
-CRTDSPF    FILE(<BIBLIO>/PROD_DET_F) SRCFILE(<BIBLIO>/QDDSSRC) SRCMBR(PROD_DET_F)
-CRTSQLRPGI OBJ(<BIBLIO>/SRV_PROD) SRCFILE(<BIBLIO>/QRPGLESRC) SRCMBR(SRV_PROD) OBJTYPE(*MODULE) COMMIT(*NONE)
-CRTSRVPGM  SRVPGM(<BIBLIO>/SRV_PROD) MODULE(<BIBLIO>/SRV_PROD) EXPORT(*SRCFILE) SRCFILE(<BIBLIO>/QSRVSRC) SRCMBR(SRV_PROD)
-CRTBNDDIR  BNDDIR(<BIBLIO>/MYBNDDIR)
-ADDBNDDIRE BNDDIR(<BIBLIO>/MYBNDDIR) OBJ((<BIBLIO>/SRV_PROD *SRVPGM))
-CRTBNDRPG  PGM(<BIBLIO>/PROD_DET) SRCFILE(<BIBLIO>/QRPGLESRC) SRCMBR(PROD_DET)
-CRTBNDRPG  PGM(<BIBLIO>/PROD_LIST) SRCFILE(<BIBLIO>/QRPGLESRC) SRCMBR(PROD_LIST)
+CRTDSPF    FILE(<LIB>/PROD_LST_F) SRCFILE(<LIB>/QDDSSRC) SRCMBR(PROD_LST_F)
+CRTDSPF    FILE(<LIB>/PROD_DET_F) SRCFILE(<LIB>/QDDSSRC) SRCMBR(PROD_DET_F)
+CRTSQLRPGI OBJ(<LIB>/SRV_PROD) SRCFILE(<LIB>/QRPGLESRC) SRCMBR(SRV_PROD)
+           OBJTYPE(*MODULE) COMMIT(*NONE)
+CRTSRVPGM  SRVPGM(<LIB>/SRV_PROD) MODULE(<LIB>/SRV_PROD)
+           EXPORT(*SRCFILE) SRCFILE(<LIB>/QSRVSRC) SRCMBR(SRV_PROD)
+CRTBNDDIR  BNDDIR(<LIB>/MYBNDDIR)
+ADDBNDDIRE BNDDIR(<LIB>/MYBNDDIR) OBJ((<LIB>/SRV_PROD *SRVPGM))
+CRTBNDRPG  PGM(<LIB>/PROD_DET) SRCFILE(<LIB>/QRPGLESRC) SRCMBR(PROD_DET)
+CRTBNDRPG  PGM(<LIB>/PROD_LIST) SRCFILE(<LIB>/QRPGLESRC) SRCMBR(PROD_LIST)
 ```
 
-- `COMMIT(*NONE)` : la table n'est pas journalisée.
-- `EXPORT(*SRCFILE)` : la signature vient de la source de liage. L'action « Create Service Program »
-  de VS Code (Ctrl+E) lance `EXPORT(*ALL)` et la recalcule : ne pas l'utiliser pour `SRV_PROD`.
-- Un nouvel export s'ajoute **à la fin** de `SRV_PROD.BND`, jamais au milieu : les programmes liés
-  appellent une procédure par sa position dans cette liste, pas par sa place dans le source.
-- Vérifier le liage : `DSPPGM PGM(<BIBLIO>/PROD_LIST) DETAIL(*SRVPGM)` doit citer `SRV_PROD`.
+Run: `CALL PROD_LIST`.
 
-Lancer : `CALL PROD_LIST`.
+## Rules shared by all modules
+
+- `COMMIT(*NONE)` as long as the tables are not journaled.
+- `EXPORT(*SRCFILE)`: the signature comes from the binder source. The VS Code action "Create Service Program"
+  (Ctrl+E) runs `EXPORT(*ALL)` and recomputes it: do not use it for a service program.
+- A new export always goes **at the end** of the binder source, never in the middle: bound programs call a procedure
+  by its position in that list, not by its place in the source.
+- Check the binding: `DSPPGM PGM(<LIB>/PROD_LIST) DETAIL(*SRVPGM)` must list `SRV_PROD`.
