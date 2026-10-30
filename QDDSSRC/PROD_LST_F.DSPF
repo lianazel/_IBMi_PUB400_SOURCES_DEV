@@ -1,0 +1,48 @@
+     A*----------------------------------------------
+     A* --- SOUS-FICHIER DE LISTE AVEC RECHERCHE ALPHA
+     A*----------------------------------------------
+     A                                      DSPSIZ(24 80 *DS3)
+     A                                      INDARA
+     A                                      REF(PRODUIT)
+     A                                      CA03(03 'Quitter')
+     A                                      CA12(12 'Retour')
+     A*
+     A* --- SOUS-FICHIER DE LISTE ---
+     A          R SFLREG                    SFL
+     A            S_OPT          1A  B  6  3VALUES(' ' '2' '3' '4' '5')
+     A            PR_CODE   R        O  6  8
+     A            PR_LIBELLER        O  6 22
+     A*
+     A* --- CONTROLE DU SOUS-FICHIER ---
+     A          R W_CTL                     SFLCTL(SFLREG)
+     A                                      SFLSIZ(9999)
+     A                                      SFLPAG(0015)
+     A                                      OVERLAY
+     A  31                                  SFLDSP
+     A  32                                  SFLDSPCTL
+     A  33                                  SFLCLR
+     A  34                                  SFLEND(*MORE)
+     A                                      CA06(06 'Créer')
+     A                                      CA16(16 'Permuter Recherche')
+     A                                      PAGEDOWN(25 'Page suivante')
+     A            W_RRN          4S 0H      SFLRCDNBR(CURSOR)
+     A                                  1 25'GESTION DES PRODUITS'
+     A*
+     A*
+     A* --- ZONES DE RECHERCHE DYNAMIQUES ---
+     A N45                              3  2'Recherche Code :'
+     A N45        W_CODE    R        B  3 20REFFLD(PR_CODE PRODUIT)
+     A  45                              3  2'Recherche Lib.  :'
+     A  45        W_LIB     R        B  3 20REFFLD(PR_LIBELLE PRODUIT)
+     A*
+     A                                  4  2'Opt'
+     A                                  4  8'Code'
+     A                                  4 22'Libelle'
+     A          R FKEYS
+     A                                 23  2'F3=Quitter   F6=Creer   -
+     A                                      F16=Inverser la recherche'
+     A                                      COLOR(BLU)
+     A          R MSGRCD
+     A                                      OVERLAY
+     A                                 24  2'Option invalide'
+     A                                      COLOR(RED)

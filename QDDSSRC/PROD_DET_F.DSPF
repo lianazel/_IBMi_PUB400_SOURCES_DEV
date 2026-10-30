@@ -1,0 +1,38 @@
+     A*------------------------
+     A* --- FORMAT DETAIL FICHE PRODUIT ---
+     A*------------------------
+     A                                      DSPSIZ(24 80 *DS3)
+     A                                      INDARA
+     A                                      REF(PRODUIT)
+     A                                      CA03(03 'Quitter')
+     A                                      CA10(10 'Confirmer')
+     A                                      CA12(12 'Retour')
+     A*
+     A* --- FORMAT DETAIL ---
+     A          R PR_DET
+     A                                  1 25'DETAIL PRODUIT'
+     A            D_MODE        15A  O  3 25
+     A  42                                  COLOR(RED)
+     A N42                                  COLOR(YLW)
+     A*
+     A                                  5  5'ID      :'
+     A            D_ID           9Y 0O  5 15EDTCDE(4)
+     A                                  7  5'Code    :'
+     A            D_CODE        10   B  7 15
+     A  40                                  DSPATR(PR)
+     A                                  9  5'Libelle :'
+     A            D_LIBELLE     50   B  9 15
+     A  41                                  DSPATR(PR)
+     A N42                             23  2'F3=Quitter   F12=Annuler'
+     A  42                             23  2'F3=Quitter'
+     A                                       COLOR(BLU)
+     A  42                             23 15'F10=Confirmer'
+     A                                       COLOR(RED)
+     A  42                             23 32'F12=Annuler'
+     A                                      COLOR(BLU)
+     A            D_MSG         70A  O 24  2COLOR(RED)
+
+
+
+
+

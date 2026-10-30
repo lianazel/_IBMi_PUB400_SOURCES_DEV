@@ -1,0 +1,12 @@
+# Réglages locaux de VS Code : ils peuvent contenir des chemins de la machine, des tâches exécutables,
+# voire des paramètres de connexion à l'IBM i. Ils ne partent jamais dans le dépôt public.
+.vscode/
+
+# Fichiers que Windows et Office déposent d'eux-mêmes dans un dossier.
+Thumbs.db
+desktop.ini
+~$*
+
+# Spools et journaux recopiés pour lecture : ils montrent le profil et la bibliothèque.
+*.log
+*.splf

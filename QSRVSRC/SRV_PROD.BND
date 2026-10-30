@@ -1,0 +1,7 @@
+STRPGMEXP PGMLVL(*CURRENT) SIGNATURE('SRV_PROD_V1')
+   EXPORT SYMBOL("PROD_get_by_code")
+   EXPORT SYMBOL("PROD_get_by_libelle")
+   EXPORT SYMBOL("PROD_save")
+   EXPORT SYMBOL("PROD_delete")
+   EXPORT SYMBOL("PROD_get_by_code_next")
+ENDPGMEXP
