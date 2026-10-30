@@ -19,6 +19,25 @@ and screen texts are in French.
 | Products | done | `PROD_LIST`, `PROD_DET` | `SRV_PROD` |
 | Orders | planned | — | — |
 
+## Why this architecture
+
+| Term | Original meaning | Here |
+|---|---|---|
+| **SOA** (*Service-Oriented Architecture*) | Data access and business rules live in services, called through a contract | The `SRV_PROD` service program: 5 exported procedures, the `SRV_PROD_H` copybook as the contract; screen programs never touch a table |
+| **MVVM** (*Model – View – ViewModel*) | The screen holds no logic; an intermediary prepares the data and reacts to user actions | *View* = the DDS display file; *ViewModel* = the RPG program behind the screen; *Model* = `SRV_PROD` and the table |
+
+What it brings:
+
+- **Change a screen without touching the SQL**, and the other way round.
+- **Reuse**: the Orders module will be able to read products through `SRV_PROD`, without rewriting a line of SQL.
+- **Open up**: the procedures of a service program can be exposed as web services (IBM i Integrated Web Services),
+  without touching the screens.
+- **Evolve without breaking**: the fixed signature lets new procedures be added, at the end of the binder source,
+  without recompiling the existing programs.
+
+Where the analogy stops: 5250 has no automatic data binding, the program fills the screen and reads the keys; and the
+service is a bound call within the same job, not a network call.
+
 ## Products module
 
 | Source file | Member | Role |

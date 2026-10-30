@@ -18,6 +18,25 @@ Code for IBM i : un dossier par fichier source, un fichier par membre, l'extensi
 | Produits | fait | `PROD_LIST`, `PROD_DET` | `SRV_PROD` |
 | Commandes | à venir | — | — |
 
+## Pourquoi cette architecture
+
+| Terme | Sens d'origine | Ici |
+|---|---|---|
+| **SOA** (*Service-Oriented Architecture*) | L'accès aux données et les règles métier vivent dans des services, appelés selon un contrat | Le programme de service `SRV_PROD` : 5 procédures exportées, le copybook `SRV_PROD_H` comme contrat ; les programmes d'écran ne touchent jamais une table |
+| **MVVM** (*Model – View – ViewModel*) | L'écran ne contient aucune logique ; un intermédiaire prépare les données et réagit aux actions | *View* = l'écran DDS ; *ViewModel* = le programme RPG de l'écran ; *Model* = `SRV_PROD` et la table |
+
+Ce que ça apporte :
+
+- **Changer un écran sans toucher au SQL**, et l'inverse.
+- **Réutiliser** : le module Commandes pourra lire les produits par `SRV_PROD`, sans réécrire une ligne de SQL.
+- **Ouvrir** : les procédures d'un programme de service peuvent être exposées en service web (IBM i Integrated Web
+  Services), sans toucher aux écrans.
+- **Évoluer sans casser** : la signature fixe permet d'ajouter des procédures, à la fin de la source de liage, sans
+  recompiler les programmes existants.
+
+Où l'analogie s'arrête : il n'y a pas de liaison de données automatique en 5250, c'est le programme qui remplit
+l'écran et lit les touches ; et le service est un appel lié, dans le même travail, pas un appel réseau.
+
 ## Module Produits
 
 | Fichier source | Membre | Rôle |
